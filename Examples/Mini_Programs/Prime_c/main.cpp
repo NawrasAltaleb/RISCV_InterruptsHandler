@@ -25,7 +25,6 @@ int main(int argc, char** arg) {
         if (isPrime == 0){
             numbers[prime_count] = n;
             ++prime_count;
-            asm("jal _store_internals");
         }
         n=n+1;
     }
