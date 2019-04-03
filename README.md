@@ -1,11 +1,12 @@
-This README gives an overview of the RISC-V with interrupts implementation and the process to generate some testing examples including FreeRTOS.
+This README gives an overview of the RISC-V with interrupts handler implementation and the process to generate some testing examples including FreeRTOS.
 
 **Content:**
-- *Documentation*: includes RISC-V Instruction Set Manual (Volume I: User-Level ISA, Volume II: Privileged Architecutre) and some presentations that help understand the
- architecture of the RISC-V processor.
-- *ESL*: Electronic system level description of the RISC-V processor.
-- *RTL*: RTL Design of the RISC-V Processor as well as Test Benches and Properties.
-- *Examples*: a collection of assembly and c++ programs to run on the processor, including one example of FreeRTOS operating system.
+- *Documentation*: includes RISC-V Instruction Set Manual (Volume I: User-Level ISA, Volume II: Privileged Architecutre) and some presentations that help understand the architecture of the RISC-V processor.
+- *Examples*: a collection of assembly and c++ programs to test the implementation and some programs with interrupts handling functions, including one example of FreeRTOS operating system.
+- *RISCV_Testing*: includes the Electronic system level description of the RISC-V processor and the testbench that evaluate the implementations functionality against some of the given examples.
+- *RTL*: RTL Design of the RISC-V Processor as well as Test Benches
+- *ITL*: ITL properties to formaly verify the correctness of the RTL design.
+- *SVA*: SVA properties to formaly verify the correctness of the ISA module of the RTL design.
 
 
 # Electronic System Level (ESL):

@@ -1,12 +1,11 @@
 //
-// Created by lukadejanovic on 20.3.18..
+// Created by Nawras Altaleb (nawras.altaleb89@gmail.com) on 20.3.18..
 //
 
 #ifndef PROJECT_CORE_TEST_H
 #define PROJECT_CORE_TEST_H
 
 
-#include <tlm.h>
 #include <iostream>
 #include "assert.h"
 #include "systemc.h"
@@ -37,7 +36,6 @@ public:
     void perform_test();
 
 private:
-//    void regfile_log(Core* CO);
     int argc; char **argv;
 };
 
@@ -55,7 +53,6 @@ void Core_test::perform_test() {
 
     // Component instantiations
     Core CO("CO");
-//    G_Core CO("CO");
     Memory ME("ME", opt.mem_size);
     loader.load_executable_image(ME.mem, ME.size, opt.mem_start_addr);
     CO.PCREG = loader.get_entrypoint();
@@ -652,7 +649,7 @@ void Core_test::perform_test() {
 
     } else if (test_case == "Fibonacci.elf") { // for Programs/Fibonacci_c/Fibonacci.elf
 
-        int n = 15000;//Enter the number of terms of Fibonacci series you want (no smaller than 10)
+        int n = 1000;//Enter the number of terms of Fibonacci series you want (no smaller than 10)
         int numbers[n];
         int c, first = 0, second = 1, next;
         for (c = 0; c < n; c++) {
@@ -696,7 +693,7 @@ void Core_test::perform_test() {
 
     } else if (test_case == "Prime.elf") { // for Programs/Prime_c/Prime.elf
 
-        int n = 10000;
+        int n = 1000;
         int i;
         int prime_count = 0;
         int max_cnt = 10; //How many primes should be computed?
@@ -748,250 +745,6 @@ void Core_test::perform_test() {
 
     cout << "Tests for test case: '" << test_case << "':" << " [PASSED]" << endl;
 }
-
-
-/*
-void Core_test::regfile_log(Core* CO) {
-
-    stringstream s;
-
-    cout << string(143, '-') << endl;
-
-    cout << "Register File Content (Hex):" << endl;
-
-    cout << string(143, '-') << endl;
-
-    for (int i = 0; i < 32; i++) {
-        switch (i) {
-            case 0:
-                s << dec << "RF[00] 0x0";
-                break;
-            case 1:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(01);
-                break;
-            case 2:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(02);
-                break;
-            case 3:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(03);
-                break;
-            case 4:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(04);
-                break;
-            case 5:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(05);
-                break;
-            case 6:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(06);
-                break;
-            case 7:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(07) << endl;
-                break;
-            case 8:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(08);
-                break;
-            case 9:
-                s << dec << "RF[0" << i << "] 0x" << hex << CO->REGFILE(09);
-                break;
-            case 10:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(10);
-                break;
-            case 11:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(11);
-                break;
-            case 12:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(12);
-                break;
-            case 13:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(13);
-                break;
-            case 14:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(14);
-                break;
-            case 15:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(15) << endl;
-                break;
-            case 16:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(16);
-                break;
-            case 17:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(17);
-                break;
-            case 18:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(18);
-                break;
-            case 19:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(19);
-                break;
-            case 20:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(20);
-                break;
-            case 21:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(21);
-                break;
-            case 22:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(22);
-                break;
-            case 23:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(23) << endl;
-                break;
-            case 24:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(24);
-                break;
-            case 25:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(25);
-                break;
-            case 26:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(26);
-                break;
-            case 27:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(27);
-                break;
-            case 28:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(28);
-                break;
-            case 29:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(29);
-                break;
-            case 30:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(30);
-                break;
-            case 31:
-                s << dec << "RF[" << i << "] 0x" << hex << CO->REGFILE(31) << endl;
-                break;
-            default:
-                s << "Error!";
-        }
-
-        if (i == 7 || i == 15 || i == 23 || i == 31) {
-            cout << left  << s.str();
-        } else {
-            cout << left << setw(18) << s.str();
-        }
-
-        s.str("");
-    }
-
-    cout << string(143, '-') << endl;
-
-    cout << "Register File Content (Dec):" << endl;
-
-    cout << string(143, '-') << endl;
-
-    for (int i = 0; i < 32; i++) {
-        switch (i) {
-            case 0:
-                s << dec << "RF[00]   0";
-                break;
-            case 1:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(01);
-                break;
-            case 2:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(02);
-                break;
-            case 3:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(03);
-                break;
-            case 4:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(04);
-                break;
-            case 5:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(05);
-                break;
-            case 6:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(06);
-                break;
-            case 7:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(07) << endl;
-                break;
-            case 8:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(08);
-                break;
-            case 9:
-                s << dec << "RF[0" << i << "]   " << CO->REGFILE(09);
-                break;
-            case 10:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(10);
-                break;
-            case 11:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(11);
-                break;
-            case 12:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(12);
-                break;
-            case 13:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(13);
-                break;
-            case 14:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(14);
-                break;
-            case 15:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(15) << endl;
-                break;
-            case 16:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(16);
-                break;
-            case 17:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(17);
-                break;
-            case 18:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(18);
-                break;
-            case 19:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(19);
-                break;
-            case 20:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(20);
-                break;
-            case 21:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(21);
-                break;
-            case 22:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(22);
-                break;
-            case 23:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(23) << endl;
-                break;
-            case 24:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(24);
-                break;
-            case 25:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(25);
-                break;
-            case 26:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(26);
-                break;
-            case 27:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(27);
-                break;
-            case 28:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(28);
-                break;
-            case 29:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(29);
-                break;
-            case 30:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(30);
-                break;
-            case 31:
-                s << dec << "RF[" << i << "]   " << CO->REGFILE(31) << endl;
-                break;
-            default:
-                s << "Error!";
-        }
-
-        if (i == 7 || i == 15 || i == 23 || i == 31) {
-            cout << left  << s.str();
-        } else {
-            cout << left << setw(18) << s.str();
-        }
-
-        s.str("");
-    }
-
-    cout << string(143, '-') << endl;
-}
-*/
 
 
 #endif //PROJECT_CORE_TEST_H

@@ -5,7 +5,6 @@
 
 int main() {
     printf("This Test only prints this message.\n");
-    printf("BTW Paulius, keep holding on\n");
     asm volatile ("addi t5, %0, 0"::"r"(5));
     asm volatile ("addi t6, %0, 0"::"r"(6));
 
