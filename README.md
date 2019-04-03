@@ -2,12 +2,12 @@ This README gives an overview of the RISC-V with interrupts handler implementati
 
 **Content:**
 
-    **Documentation**: includes RISC-V Instruction Set Manual (Volume I: User-Level ISA, Volume II: Privileged Architecutre) and some presentations that help understand the architecture of the RISC-V processor.
-    **Examples**: a collection of assembly and c++ programs to test the implementation and some programs with interrupts handling functions, including one example of FreeRTOS operating system.
-    **RISCV_Testing**: includes the Electronic system level description of the RISC-V processor and the testbench that evaluate the implementations functionality against some of the given examples.
-    **RTL**: RTL Design of the RISC-V Processor as well as Test Benches
-    **ITL**: ITL properties to formaly verify the correctness of the RTL design.
-    **SVA**: SVA properties to formaly verify the correctness of the ISA module of the RTL design.
+* **Documentation**: includes RISC-V Instruction Set Manual (Volume I: User-Level ISA, Volume II: Privileged Architecutre) and some presentations that help understand the architecture of the RISC-V processor.
+* **Examples**: a collection of assembly and c++ programs to test the implementation and some programs with interrupts handling functions, including one example of FreeRTOS operating system.
+* **RISCV_Testing**: includes the Electronic system level description of the RISC-V processor and the testbench that evaluate the implementations functionality against some of the given examples.
+* **RTL**: RTL Design of the RISC-V Processor as well as Test Benches
+* **ITL**: ITL properties to formaly verify the correctness of the RTL design.
+* **SVA**: SVA properties to formaly verify the correctness of the ISA module of the RTL design.
 
 
 # Electronic System Level (ESL):
@@ -19,13 +19,13 @@ Following the rules of SystemC-PPA (more details can be found [here](https://git
 ### ISA:
 The main module of the core, it handles all the control and arithmetic executions in the core. It communicates with other modules through the following ports:
 
-    - **blocking_out <CUtoME_IF> toMemoryPort** used for request a read instruction, request a read data for load instructions and request a write data for store instructions.
-    - **blocking_in<MEtoCU_IF> fromMemoryPort** used for read instruction and read data for load instructions.
-    - **master_in<RegfileType> fromRegsPort** used for reading the register file.
-    - **master_out<RegfileWriteType> toRegsPort** used for writing back to the register file.
-    - **blocking_out<bool> isa_ecall_Port** used for triggering the EcallHandler when an ECALL is read. This communication has to be through a Blocking channel in order to suspend execution of ISA while the ECALL is being served.
-    - **blocking_in<bool> ecall_isa_Port** used for reading the status of the processor after ECALL. This status might trigger the end of simulation for system-level model when the environment call served is \textit{exit}.
-    - **master_in<unsigned int> mip_isa_Port** used for reading the status of the connected interrupt sources.
+- **blocking_out <CUtoME_IF> toMemoryPort** used for request a read instruction, request a read data for load instructions and request a write data for store instructions.
+- **blocking_in<MEtoCU_IF> fromMemoryPort** used for read instruction and read data for load instructions.
+- **master_in<RegfileType> fromRegsPort** used for reading the register file.
+- **master_out<RegfileWriteType> toRegsPort** used for writing back to the register file.
+- **blocking_out<bool> isa_ecall_Port** used for triggering the EcallHandler when an ECALL is read. This communication has to be through a Blocking channel in order to suspend execution of ISA while the ECALL is being served.
+- **blocking_in<bool> ecall_isa_Port** used for reading the status of the processor after ECALL. This status might trigger the end of simulation for system-level model when the environment call served is \textit{exit}.
+- **master_in<unsigned int> mip_isa_Port** used for reading the status of the connected interrupt sources.
 
 
 The sequence of communications with other modules differ depending on the instruction being executed. These instructions can be categorized according to their encryption type. Table \ref{table:riscv_isaComm} shows the sequence of communications for all possible encryption types following the pair of communication to read an instruction from memory.
@@ -49,40 +49,40 @@ The sequence of communications with other modules differ depending on the instru
 ### Register File:
 This module will always present the content of the register file to the connected modules (ISA and EcallHandler) by using *slave_out* ports. It will also keep on checking both inward ports for writing requests. It has the following communication ports:
 
-    - *slave_in<RegfileWriteType> toRegsPort* used for reading a write request from ISA to a certain register in the register file.
-    - *slave_out<RegfileType> fromRegsPort* used for exporting the entire register file to ISA.
-    - *slave_in<RegfileWriteType> ecall_reg_Port* used for reading a write request from EcallHandler to register (*x10*) in the register file.
-    - *slave_out<RegfileEcallType> reg_ecall_Port* used for exporting registers (*x10*, *x11*, *x12* and *x17*) to EcallHandler.
+- **slave_in<RegfileWriteType> toRegsPort** used for reading a write request from ISA to a certain register in the register file.
+- **slave_out<RegfileType> fromRegsPort** used for exporting the entire register file to ISA.
+- **slave_in<RegfileWriteType> ecall_reg_Port** used for reading a write request from EcallHandler to register (*x10*) in the register file.
+- **slave_out<RegfileEcallType> reg_ecall_Port** used for exporting registers (*x10*, *x11*, *x12* and *x17*) to EcallHandler.
 
 
 
 ### Environment call handler:
 This module is responsible for executing environment requests from the running program. These request may include many types, but in our current implementation we are only supporting both (*printf* and *exit*). It has the following communication ports:
 
-    *blocking_out<CUtoME_IF> toMemoryPort* used for requesting a read of memory content.
-    *blocking_in<MEtoCU_IF> fromMemoryPort* used for reading data from the memory.
-    *master_in<RegfileEcallType> reg_ecall_Port* used for reading registers (*x10*, *x11*, *x12* and *x17*) which should be holding the arguments and type of ecall request.
-    *master_out<RegfileWriteType> ecall_reg_Port* used for writing back to the register file (specifically to *x10*, which should hold the result of an ecall request).
-    *blocking_out<bool> ecall_isa_Port* used for returning to ISA the status of the processor after handling the ecall.
-    *blocking_in<bool> isa_ecall_Port* used for triggering the main process of the EcallHandler by ISA.
+- **blocking_out<CUtoME_IF> toMemoryPort** used for requesting a read of memory content.
+- **blocking_in<MEtoCU_IF> fromMemoryPort** used for reading data from the memory.
+- **master_in<RegfileEcallType> reg_ecall_Port** used for reading registers (*x10*, *x11*, *x12* and *x17*) which should be holding the arguments and type of ecall request.
+- **master_out<RegfileWriteType> ecall_reg_Port** used for writing back to the register file (specifically to *x10*, which should hold the result of an ecall request).
+- **blocking_out<bool> ecall_isa_Port** used for returning to ISA the status of the processor after handling the ecall.
+- **blocking_in<bool> isa_ecall_Port** used for triggering the main process of the EcallHandler by ISA.
 
 
 ### Pending machine interrupt handler:
 This module is responsible for collecting the interrupts statuses (In our current implementation we are only supporting system, timer and external interrupts), and present them to ISA as a single 32-bit value (`mip` register of CSRs) with each bit referring to a specific interrupt source. It has the following communication ports:
 
-    *slave_out<unsigned int> mip_isa_Port* used for writing the 32-bit value to ISA.
-    *master_in<bool> MSIP_port* used for reading the status of system interrupt.
-    *master_in<bool> MTIP_port* used for reading the status of timer interrupt.
-    *master_in<bool> MEIP_port* used for reading the status of external interrupt.
+- **slave_out<unsigned int> mip_isa_Port** used for writing the 32-bit value to ISA.
+- **master_in<bool> MSIP_port** used for reading the status of system interrupt.
+- **master_in<bool> MTIP_port** used for reading the status of timer interrupt.
+- **master_in<bool> MEIP_port** used for reading the status of external interrupt.
 
 
 ### Core Local Interruptor (CLINT):
 This module is used to generate software and timer Interrupts. It contains the RISC-V `msip`, `mtime` and `mtimecmp` memory mapped CSRs. The `msip` memory mapped CSR can be used to generate Machine Software Interrupts (MSIP). This register can be accessed by remote harts to provide machine-mode interprocessor interrupt (Not included in our current implementation). `mtime` and `mtimecmp` memory mapped CSRs can be used to generate Machine Timer Interrupts (MTIP). This interrupt is set when `mtime` exceed `mtimecmp` and it can be reset by writing a new bigger value to `mtimecmp`. This module has the following communication ports:
 
-    *blocking_in<CUtoME_IF> COtoME_port* used for reading memory access requests from the Core.
-    *blocking_out<MEtoCU_IF> MEtoCO_port* used for presenting the CLINT memory reply to the Core.
-    *slave_out<bool> MSIP_port* used for presenting the MSIP status to the Core.
-    *slave_out<bool> MTIP_port* used for presenting the MTIP status to the Core.
+- **blocking_in<CUtoME_IF> COtoME_port** used for reading memory access requests from the Core.
+- **blocking_out<MEtoCU_IF> MEtoCO_port** used for presenting the CLINT memory reply to the Core.
+- **slave_out<bool> MSIP_port** used for presenting the MSIP status to the Core.
+- **slave_out<bool> MTIP_port** used for presenting the MTIP status to the Core.
 
 CLINT requires more than one thread to be running simultaneously and because currently SystemC-PPA doesn't support multiple threads, the internal of CLINT has been divided into submodules as shown in figure above.
 
@@ -90,9 +90,9 @@ CLINT requires more than one thread to be running simultaneously and because cur
 ### Platform Level Interrupt Controller (PLIC):
 This module is used to prioritize and distribute global interrupts and generate on their behalf what is called the External Interrupt (MEIP). For every added external interrupt source, a new gateway should be added to the *PLIC_Gateways* to handle the interrupt type (i.e. Level triggered or edge triggered interrupts) and required register and channels to *PLIC_Core* and *PLIC_Memory_Manager* follows as well. This module has the following communication ports:
 
-    *blocking_in<CUtoME_IF> COtoME_port* used for reading memory access requests from the Core.
-    *blocking_out<MEtoCU_IF> MEtoCO_port* used for presenting the PLIC memory reply to the Core.
-    *slave_out<bool> MEIP_port* used for presenting the MEIP status to the Core.
+- **blocking_in<CUtoME_IF> COtoME_port** used for reading memory access requests from the Core.
+- **blocking_out<MEtoCU_IF> MEtoCO_port** used for presenting the PLIC memory reply to the Core.
+- **slave_out<bool> MEIP_port** used for presenting the MEIP status to the Core.
 
 PLIC require more than one thread to be running simultaneously and because currently SystemC-PPA doesn't support multiple threads, the internal of PLIC have been divided into submodules as shown in figure above.
 
@@ -101,16 +101,16 @@ PLIC require more than one thread to be running simultaneously and because curre
 
 This module is responsible for forwarding ISA and EcallHandler memory access requests and replies to the three connected memory mapped modules (CLINT, PLIC and Memory). It has the following communication ports:
 
-    *blocking_in<CUtoME_IF> ecall_bus_Port* used for reading the EcallHandler memory access requests.
-    *blocking_out<MEtoCU_IF> bus_ecall_Port* used for forwarding the memory reply to the EcallHandler.
-    *blocking_in<CUtoME_IF> isa_bus_Port* used for reading the ISA memory access requests.
-    *blocking_out<MEtoCU_IF> bus_isa_Port* used for forwarding the memory reply to the ISA.
-    *blocking_out<CUtoME_IF> BUStoMEM_port* used for forwarding the Core memory access requests to Memory.
-    *blocking_in<MEtoCU_IF> MEMtoBUS_port* used for reading the Memory reply.
-    *blocking_out<CUtoME_IF> BUStoCLINT_port* used for forwarding the Core memory access requests to CLINT.
-    *blocking_in<MEtoCU_IF> CLINTtoBUS_port* used for reading the CLINT reply.
-    *blocking_out<CUtoME_IF> BUStoPLIC_port* used for forwarding the Core memory access requests to PLIC.
-    *blocking_in<MEtoCU_IF> PLICtoBUS_port* used for reading the PLIC reply.
+- **blocking_in<CUtoME_IF> ecall_bus_Port** used for reading the EcallHandler memory access requests.
+- **blocking_out<MEtoCU_IF> bus_ecall_Port** used for forwarding the memory reply to the EcallHandler.
+- **blocking_in<CUtoME_IF> isa_bus_Port** used for reading the ISA memory access requests.
+- **blocking_out<MEtoCU_IF> bus_isa_Port** used for forwarding the memory reply to the ISA.
+- **blocking_out<CUtoME_IF> BUStoMEM_port** used for forwarding the Core memory access requests to Memory.
+- **blocking_in<MEtoCU_IF> MEMtoBUS_port** used for reading the Memory reply.
+- **blocking_out<CUtoME_IF> BUStoCLINT_port** used for forwarding the Core memory access requests to CLINT.
+- **blocking_in<MEtoCU_IF> CLINTtoBUS_port** used for reading the CLINT reply.
+- **blocking_out<CUtoME_IF> BUStoPLIC_port** used for forwarding the Core memory access requests to PLIC.
+- **blocking_in<MEtoCU_IF> PLICtoBUS_port** used for reading the PLIC reply.
 
 Adding new Peripherals will require adding two new communication ports to this module and manage the linking at the Core level.
 
