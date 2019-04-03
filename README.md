@@ -11,9 +11,32 @@ This README gives an overview of the RISC-V with interrupts handler implementati
 
 # Electronic System Level (ESL):
 
-![](Documentation/core.png)
+Following the rules of SystemC-PPA (more details can be found [here](https://github.com/ludwig247/DeSCAM)) and in compliance with SiFive (more details can be found [here](www.sifive.com/core-designer)) guidelines regarding the structure and memory mapping of RISCV processor, we created our complex system-level design for a RISCV processor with interrupts handling, as shown in following figure. We will briefly describe the modules and sub-modules created for this design and the communication channels used between them.
+
+![](Documentation/riscv_core.png)
 
 ### ISA:
+The main module of the core, it handles all the control and arithmetic executions in the core. It communicates with other modules through the following ports:
+
+    - *blocking_out <CUtoME_IF> toMemoryPort* used for request a read instruction, request a read data for load instructions and request a write data for store instructions.
+    - *blocking_in<MEtoCU_IF> fromMemoryPort* used for read instruction and read data for load instructions.
+    - *master_in<RegfileType> fromRegsPort* used for reading the register file.
+    - *master_out<RegfileWriteType> toRegsPort* used for writing back to the register file.
+    - *blocking_out<bool> isa_ecall_Port* used for triggering the EcallHandler when an ECALL is read. This communication has to be through a Blocking channel in order to suspend execution of ISA while the ECALL is being served.
+    - *blocking_in<bool> ecall_isa_Port* used for reading the status of the processor after ECALL. This status might trigger the end of simulation for system-level model when the environment call served is \textit{exit}.
+    - *master_in<unsigned int> mip_isa_Port* used for reading the status of the connected interrupt sources.
+
+
+    | ------------------------- |
+    *R_Type* | RF_read | ... | ... | RF_write | ... | MIP_read |
+
+
+
+
+
+The sequence of communications with other modules differ depending on the instruction being executed. These instructions can be categorized according to their encryption type. Table \ref{table:riscv_isaComm} shows the sequence of communications for all possible encryption types following the pair of communication to read an instruction from memory.
+
+
 The main module of the core. It has the following communication ports:
 - *blocking_out<CPtoME_IF> toMemoryPort* used for, request a read instruction, request a read data for load instructions and request a write data for store instructions.
 - *blocking_in<MEtoCP_IF> fromMemoryPort* used for, read instruction and read data for load instructions.
