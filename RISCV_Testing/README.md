@@ -19,7 +19,7 @@ This Directory includes a Test suite for RISCV processors based on a elf type te
 2) Within your Core.h file define these pragmas and modify them acourding to your core structure. These pragmas will be used for accessing your pcReg and registerfile:
     * #define REGFILE(x) RF.reg_file_##x;
     * #define PCREG innerCore.ISA_inst.pcReg
-3) Add your Core.h to ESL/Core_include/Core_include.h and uncomment all other cores.
+3) Add your Core.h to ESL/Core_include.h and uncomment all other cores.
 
 
 ## Running

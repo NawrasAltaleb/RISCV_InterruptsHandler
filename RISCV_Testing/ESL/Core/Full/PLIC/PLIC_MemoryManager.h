@@ -5,7 +5,6 @@
 #ifndef PROJECT_PLIC_MEMORYMANAGER_H
 #define PROJECT_PLIC_MEMORYMANAGER_H
 
-
 #include "systemc.h"
 #include "Interfaces.h"
 #include "Memory_Interfaces.h"
@@ -48,13 +47,13 @@ public:
     MEtoCU_IF MEtoCP_data;
 
     /// Communication and data with PLIC_Core
-    master_out<unsigned int> toCore_Priority_Int_1;
-    master_out<unsigned int> toCore_Priority_Int_2;
-    master_out<unsigned int> toCore_Enabled;
-    master_out<unsigned int> toCore_Threshold;
+    shared_out<unsigned int> toCore_Priority_Int_1;
+    shared_out<unsigned int> toCore_Priority_Int_2;
+    shared_out<unsigned int> toCore_Enabled;
+    shared_out<unsigned int> toCore_Threshold;
     master_out<unsigned int> toCore_Claimed;
-//    master_in<unsigned int> fromCore_MaxPriority;
-    master_in<unsigned int> fromCore_MaxID;
+//    shared_out<unsigned int> toCore_Claimed;
+    shared_in<unsigned int> fromCore_MaxID;
 
     unsigned int priority_Int_1_data;
     unsigned int priority_Int_2_data;
@@ -73,13 +72,18 @@ public:
 
     void run() {
         while (true) {
+            toCore_Priority_Int_1->set(priority_Int_1_data);
+            toCore_Priority_Int_2->set(priority_Int_2_data);
+            toCore_Enabled->set(enabled_data);
+            toCore_Threshold->set(threshold_data);
+
             /// start with a memory request
             MEtoCP_data.loadedData = 0;
             COtoME_port->read(CPtoME_data); //Wait for next request
 
             /// get the most recent values from PLIC_Core
 //            fromCore_MaxPriority->read(max_priority_data);
-            fromCore_MaxID->read(max_id_data);
+            fromCore_MaxID->get(max_id_data);
             if(max_id_data != ClaimComplete)
                 ClaimComplete = max_id_data;
 
@@ -104,6 +108,7 @@ public:
                     MEtoCO_port->write(MEtoCP_data);
                 } else if (CPtoME_data.addrIn == PLIC_Claim_Complete_ADDR) {
                     MEtoCP_data.loadedData = ClaimComplete;
+                    /// Let PLIC_Core know immediately that a pending interrupt has been claimed
                     toCore_Claimed->write(ClaimComplete);
                     MEtoCO_port->write(MEtoCP_data);
                 } else {
@@ -114,24 +119,19 @@ public:
             } else if (CPtoME_data.req == ME_WR) {
                 if (CPtoME_data.addrIn == PLIC_Priority_ADDR) {
                     priority_Int_1_data = CPtoME_data.dataIn;
-                    toCore_Priority_Int_1->write(priority_Int_1_data);
                 } else if (CPtoME_data.addrIn == PLIC_Priority_ADDR + 4) {
                     priority_Int_2_data = CPtoME_data.dataIn;
-                    toCore_Priority_Int_2->write(priority_Int_2_data);
                 } else if (CPtoME_data.addrIn == PLIC_Pending_ADDR) {
                     toGatewayPending_1->write(true);
                 } else if (CPtoME_data.addrIn == PLIC_Pending_ADDR + 4) {
                     toGatewayPending_2->write(true);
                 } else if (CPtoME_data.addrIn == PLIC_Interrupt_Enables_ADDR) {
                     enabled_data = CPtoME_data.dataIn;
-                    toCore_Enabled->write(enabled_data);
                 } else if (CPtoME_data.addrIn == PLIC_Threshold_ADDR) {
                     threshold_data = CPtoME_data.dataIn;
-                    toCore_Threshold->write(threshold_data);
                 } else if (CPtoME_data.addrIn == PLIC_Claim_Complete_ADDR) {
                     ClaimComplete = CPtoME_data.dataIn;
                 } else {
-
                     cout << "@PLIC: Unauthorized write. Terminating!" << hex << CPtoME_data.addrIn << endl;
                     sc_stop();
                     wait(SC_ZERO_TIME);

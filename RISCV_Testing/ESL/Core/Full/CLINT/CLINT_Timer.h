@@ -26,24 +26,26 @@ public:
         SC_THREAD(run);
     }
 
-    slave_out<unsigned int> toMemory_L;
-    slave_out<unsigned int> toMemory_H;
-    slave_out<unsigned int> toTimerStatus_L;
-    slave_out<unsigned int> toTimerStatus_H;
+    shared_out<unsigned int> toMemory_L;
+    shared_out<unsigned int> toMemory_H;
+    shared_out<unsigned int> toTimerStatus_L;
+    shared_out<unsigned int> toTimerStatus_H;
 
     unsigned int mtimeL;
     unsigned int mtimeH;
 
     void run() {
         while (true) {
-            toMemory_L->nb_write(mtimeL);
-            toMemory_H->nb_write(mtimeH);
-            toTimerStatus_L->nb_write(mtimeL);
-            toTimerStatus_H->nb_write(mtimeH);
+            toMemory_L->set(mtimeL);
+            toMemory_H->set(mtimeH);
+            toTimerStatus_L->set(mtimeL);
+            toTimerStatus_H->set(mtimeH);
 
             ++mtimeL;
             if (mtimeL == 0)
                 ++mtimeH;
+
+            wait(SC_ZERO_TIME);
         }
     }
 };

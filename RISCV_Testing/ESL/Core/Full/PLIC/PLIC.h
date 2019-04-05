@@ -23,7 +23,7 @@ public:
     //Components
     PLIC_Gateways plic_gateways;
     PLIC_Core plic_core;
-    PLIC_Memory_Manager plic_memory_manager;
+    PLIC_Memory_Manager plic_memoryManager;
 
     //Constructor
     SC_HAS_PROCESS(PLIC);
@@ -42,18 +42,18 @@ public:
     MasterSlave<bool> Pending_2;
 
     /// Communication between Core and Memory Manager
-    MasterSlave<unsigned int> MEtoCO_Priority_Int_1;
-    MasterSlave<unsigned int> MEtoCO_Priority_Int_2;
-    MasterSlave<unsigned int> MEtoCO_Enabled;
-    MasterSlave<unsigned int> MEtoCO_Threshold;
+    Shared<unsigned int> MEtoCO_Priority_Int_1;
+    Shared<unsigned int> MEtoCO_Priority_Int_2;
+    Shared<unsigned int> MEtoCO_Enabled;
+    Shared<unsigned int> MEtoCO_Threshold;
     MasterSlave<unsigned int> MEtoCO_Claimed;
 //    MasterSlave<unsigned int> MEtoCO_MaxPriority;
-    MasterSlave<unsigned int> MEtoCO_MaxID;
+    Shared<unsigned int> MEtoCO_MaxID;
 
     PLIC(sc_module_name name) :
             plic_gateways("plic_gateways"),
             plic_core("plic_core"),
-            plic_memory_manager("plic_memory_manager"),
+            plic_memoryManager("plic_memoryManager"),
 
             IntReq_1("IntReq_1"),
             IntReq_2("IntReq_2"),
@@ -80,16 +80,16 @@ public:
 
         plic_gateways.fromMemoryPending_1(Pending_1);
         plic_gateways.fromMemoryPending_2(Pending_2);
-        plic_memory_manager.toGatewayPending_1(Pending_1);
-        plic_memory_manager.toGatewayPending_2(Pending_2);
+        plic_memoryManager.toGatewayPending_1(Pending_1);
+        plic_memoryManager.toGatewayPending_2(Pending_2);
 
-        plic_memory_manager.toCore_Priority_Int_1(MEtoCO_Priority_Int_1);
-        plic_memory_manager.toCore_Priority_Int_2(MEtoCO_Priority_Int_2);
-        plic_memory_manager.toCore_Enabled(MEtoCO_Enabled);
-        plic_memory_manager.toCore_Threshold(MEtoCO_Threshold);
-        plic_memory_manager.toCore_Claimed(MEtoCO_Claimed);
-//        plic_memory_manager.fromCore_MaxPriority(MEtoCO_MaxPriority);
-        plic_memory_manager.fromCore_MaxID(MEtoCO_MaxID);
+        plic_memoryManager.toCore_Priority_Int_1(MEtoCO_Priority_Int_1);
+        plic_memoryManager.toCore_Priority_Int_2(MEtoCO_Priority_Int_2);
+        plic_memoryManager.toCore_Enabled(MEtoCO_Enabled);
+        plic_memoryManager.toCore_Threshold(MEtoCO_Threshold);
+        plic_memoryManager.toCore_Claimed(MEtoCO_Claimed);
+//        plic_memoryManager.fromCore_MaxPriority(MEtoCO_MaxPriority);
+        plic_memoryManager.fromCore_MaxID(MEtoCO_MaxID);
 
         plic_core.fromMemory_Priority_Int_1(MEtoCO_Priority_Int_1);
         plic_core.fromMemory_Priority_Int_2(MEtoCO_Priority_Int_2);
@@ -99,8 +99,8 @@ public:
 //        plic_core.toMemory_MaxPriority(MEtoCO_MaxPriority);
         plic_core.toMemory_MaxID(MEtoCO_MaxID);
 
-        plic_memory_manager.COtoME_port(COtoME_port);
-        plic_memory_manager.MEtoCO_port(MEtoCO_port);
+        plic_memoryManager.COtoME_port(COtoME_port);
+        plic_memoryManager.MEtoCO_port(MEtoCO_port);
         plic_core.MEIP_port(MEIP_port);
     }
 

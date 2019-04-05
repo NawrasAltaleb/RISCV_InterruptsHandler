@@ -23,7 +23,7 @@ public:
         SC_THREAD(run);
     }
 
-    slave_in<unsigned int> fromMemory_sip;
+    shared_in<unsigned int> fromMemory_sip;
 
     slave_out<bool> MSIP_port;
 
@@ -32,13 +32,13 @@ public:
 
     void run() {
         while (true) {
-            fromMemory_sip->nb_read(msip_data);
-
             if (msip_data > 0) {
                 MSIP_port->nb_write(true);
             } else {
                 MSIP_port->nb_write(false);
             }
+
+            fromMemory_sip->get(msip_data);
         }
     }
 };

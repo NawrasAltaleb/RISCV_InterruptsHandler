@@ -34,8 +34,6 @@ public:
             claimed_data(0),
             claimed_status(false),
             MEIP_port("MEIP_port"),
-//            pending_Int_1(false),
-//            pending_Int_2(false),
 //            max_priority(0),
             max_id(0),
             traversing_priority(0),
@@ -50,13 +48,13 @@ public:
     bool pending_Int_1_data;
     bool pending_Int_2_data;
     /// Communication and data with Memory
-    slave_in<unsigned int> fromMemory_Priority_Int_1;
-    slave_in<unsigned int> fromMemory_Priority_Int_2;
-    slave_in<unsigned int> fromMemory_Enabled;
-    slave_in<unsigned int> fromMemory_Threshold;
+    shared_in<unsigned int> fromMemory_Priority_Int_1;
+    shared_in<unsigned int> fromMemory_Priority_Int_2;
+    shared_in<unsigned int> fromMemory_Enabled;
+    shared_in<unsigned int> fromMemory_Threshold;
     slave_in<unsigned int> fromMemory_Claimed;
-//    slave_out<unsigned int> toMemory_MaxPriority;
-    slave_out<unsigned int> toMemory_MaxID;
+//    shared_in<unsigned int> fromMemory_Claimed;
+    shared_out<unsigned int> toMemory_MaxID;
 
     unsigned int priority_Int_1_data;
     unsigned int priority_Int_2_data;
@@ -69,8 +67,6 @@ public:
     slave_out<bool> MEIP_port;
 
     /// Internal variables
-//    bool pending_Int_1;
-//    bool pending_Int_2;
 //    unsigned int max_priority;
     unsigned int max_id;
     unsigned int traversing_priority;
@@ -85,34 +81,37 @@ public:
 
 void PLIC_Core::run() {
     while (true) {
-        /// read pending interrupts from gateway
-        fromGateway_Int1->nb_read(pending_Int_1_data);
-        fromGateway_Int2->nb_read(pending_Int_2_data);
-
         /// read configuration from memory manager
-        fromMemory_Priority_Int_1->nb_read(priority_Int_1_data);
-        fromMemory_Priority_Int_2->nb_read(priority_Int_2_data);
-        fromMemory_Enabled->nb_read(enabled_data);
-        fromMemory_Threshold->nb_read(threshold_data);
+        fromMemory_Priority_Int_1->get(priority_Int_1_data);
+        fromMemory_Priority_Int_2->get(priority_Int_2_data);
+        fromMemory_Enabled->get(enabled_data);
+        fromMemory_Threshold->get(threshold_data);
+
         /// clear a pending interrupt if it has been claimed by target
         claimed_status = fromMemory_Claimed->nb_read(claimed_data);
         pending_Int_1_data = manageInt_Claim(pending_Int_1_data, 1, claimed_data, claimed_status);
         pending_Int_2_data = manageInt_Claim(pending_Int_2_data, 2, claimed_data, claimed_status);
 
+        /// read pending interrupts from gateway
+        fromGateway_Int1->nb_read(pending_Int_1_data);
+        fromGateway_Int2->nb_read(pending_Int_2_data);
+
         /// reset traversing variables to start a new round
         traversing_priority = getPriority(0, priority_Int_1_data, priority_Int_2_data, enabled_data, pending_Int_1_data, pending_Int_2_data);
         traversing_id = getId(0, 0, priority_Int_1_data, priority_Int_2_data, enabled_data, pending_Int_1_data, pending_Int_2_data);
 
+        //FIXME: This section should be first in the design to avoid shared channel unpredictable initial value
         /// process final decision
         if (traversing_priority > threshold_data) {
             MEIP_port->nb_write(true);
 //            max_priority = traversing_priority;
             max_id = traversing_id;
-            toMemory_MaxID->nb_write(max_id);
+            toMemory_MaxID->set(max_id);
         } else {
             MEIP_port->nb_write(false);
-            toMemory_MaxID->nb_write(max_id);
+            toMemory_MaxID->set(max_id);
         }
+
 
         /// PLIC_Core should always send the Memory manager the max_priority and max_id so that the target can have the option of "Pulling" the status of the PLIC
         /// instead of reacting solely to an interrupt trigger.
@@ -139,7 +138,9 @@ unsigned int PLIC_Core::getPriority(unsigned int traverse_prio, unsigned int pri
 
     /// process interrupt 1
     if (pind_1 && (enabled & 0x1)>0) {
-        traverse_prio = prio_1;
+        if(prio_1 > traverse_prio) {
+            traverse_prio = prio_1;
+        }
     }
 
     /// process interrupt 2
@@ -156,8 +157,10 @@ unsigned int PLIC_Core::getId(unsigned int traverse_prio, unsigned int traverse_
 
     /// process interrupt 1
     if (pind_1 && (enabled & 0x1)>0) {
-        traverse_prio = prio_1;
-        traverse_id = 1;
+        if(prio_1 > traverse_prio) {
+            traverse_prio = prio_1;
+            traverse_id = 1;
+        }
     }
 
     /// process interrupt 2

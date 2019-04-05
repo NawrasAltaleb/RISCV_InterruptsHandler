@@ -28,10 +28,10 @@ public:
         SC_THREAD(run);
     }
 
-    master_in<unsigned int> fromTimer_L;
-    master_in<unsigned int> fromTimer_H;
-    slave_in<unsigned int> fromMemory_timecmp_L;
-    slave_in<unsigned int> fromMemory_timecmp_H;
+    shared_in<unsigned int> fromTimer_L;
+    shared_in<unsigned int> fromTimer_H;
+    shared_in<unsigned int> fromMemory_timecmp_L;
+    shared_in<unsigned int> fromMemory_timecmp_H;
 
     slave_out<bool> MTIP_port;
 
@@ -42,17 +42,17 @@ public:
 
     void run() {
         while (true) {
-            fromTimer_L->read(mtimeL_data);
-            fromTimer_H->read(mtimeH_data);
-
-            fromMemory_timecmp_L->nb_read(mtimecmpL_data);
-            fromMemory_timecmp_H->nb_read(mtimecmpH_data);
-
             if ((mtimeL_data >= mtimecmpL_data) && (mtimeH_data >= mtimecmpH_data)) {
                 MTIP_port->nb_write(true);
             } else {
                 MTIP_port->nb_write(false);
             }
+
+            fromTimer_L->get(mtimeL_data);
+            fromTimer_H->get(mtimeH_data);
+
+            fromMemory_timecmp_L->get(mtimecmpL_data);
+            fromMemory_timecmp_H->get(mtimecmpH_data);
         }
     }
 };

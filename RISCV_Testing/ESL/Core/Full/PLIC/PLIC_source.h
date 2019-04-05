@@ -20,7 +20,7 @@ public:
             IntSig_1("IntSig_1"),
             IntSig_2("IntSig_2") {
         scv_bag<bool> field_dist;
-        field_dist.add(false, 1500000);
+        field_dist.add(false, 1000000);
         field_dist.add(true, 1);
         rand_Int->set_mode(field_dist);
         SC_THREAD(run);

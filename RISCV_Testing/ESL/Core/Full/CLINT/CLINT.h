@@ -17,7 +17,7 @@
 #include "Interfaces.h"
 #include "Memory_Interfaces.h"
 #include "Defines.h"
-#include "CLINT_Memory.h"
+#include "CLINT_MemoryManager.h"
 #include "CLINT_Timer.h"
 #include "CLINT_TimerStatus.h"
 #include "CLINT_SoftwareStatus.h"
@@ -32,24 +32,24 @@ public:
     slave_out<bool> MSIP_port;
     slave_out<bool> MTIP_port;
 
-    MasterSlave<unsigned int> Timer_Memory_L_Channel;
-    MasterSlave<unsigned int> Timer_Memory_H_Channel;
-    MasterSlave<unsigned int> Timer_Status_L_Channel;
-    MasterSlave<unsigned int> Timer_Status_H_Channel;
+    Shared<unsigned int> Timer_Memory_L_Channel;
+    Shared<unsigned int> Timer_Memory_H_Channel;
+    Shared<unsigned int> Timer_Status_L_Channel;
+    Shared<unsigned int> Timer_Status_H_Channel;
 
-    MasterSlave<unsigned int> Memory_SIP_Channel;
-    MasterSlave<unsigned int> Memory_Status_L_Channel;
-    MasterSlave<unsigned int> Memory_Status_H_Channel;
+    Shared<unsigned int> Memory_SIP_Channel;
+    Shared<unsigned int> Memory_Status_L_Channel;
+    Shared<unsigned int> Memory_Status_H_Channel;
 
 
 
-    CLINT_Memory clint_memory;
+    CLINT_MemoryManager clint_memoryManager;
     CLINT_Timer clint_timer;
     CLINT_TimerStatus clint_timerStatus;
     CLINT_SipStatus clint_sipStatus;
 
     CLINT(sc_module_name name) :
-            clint_memory("clint_memory"),
+            clint_memoryManager("clint_memoryManager"),
             clint_timer("clint_timer"),
             clint_timerStatus("clint_timerStatus"),
             clint_sipStatus("clint_sipStatus"),
@@ -65,11 +65,11 @@ public:
             COtoME_port("COtoME_port"),
             MEtoCO_port("MEtoCO_port") {
 
-        clint_memory.fromTimer_L(Timer_Memory_L_Channel);
-        clint_memory.fromTimer_H(Timer_Memory_H_Channel);
-        clint_memory.toSipStatus(Memory_SIP_Channel);
-        clint_memory.toTimerStatus_L(Memory_Status_L_Channel);
-        clint_memory.toTimerStatus_H(Memory_Status_H_Channel);
+        clint_memoryManager.fromTimer_L(Timer_Memory_L_Channel);
+        clint_memoryManager.fromTimer_H(Timer_Memory_H_Channel);
+        clint_memoryManager.toSipStatus(Memory_SIP_Channel);
+        clint_memoryManager.toTimerStatus_L(Memory_Status_L_Channel);
+        clint_memoryManager.toTimerStatus_H(Memory_Status_H_Channel);
 
         clint_timer.toMemory_L(Timer_Memory_L_Channel);
         clint_timer.toMemory_H(Timer_Memory_H_Channel);
@@ -83,8 +83,8 @@ public:
 
         clint_sipStatus.fromMemory_sip(Memory_SIP_Channel);
 
-        clint_memory.COtoME_port(COtoME_port);
-        clint_memory.MEtoCO_port(MEtoCO_port);
+        clint_memoryManager.COtoME_port(COtoME_port);
+        clint_memoryManager.MEtoCO_port(MEtoCO_port);
         clint_timerStatus.MTIP_port(MTIP_port);
         clint_sipStatus.MSIP_port(MSIP_port);
     }

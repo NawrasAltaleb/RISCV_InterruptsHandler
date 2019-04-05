@@ -5,7 +5,6 @@
 #ifndef PROJECT_PLIC_GATEWAYS_H
 #define PROJECT_PLIC_GATEWAYS_H
 
-
 #include "systemc.h"
 #include "Interfaces.h"
 #include "PLIC_source.h"
